@@ -32,5 +32,6 @@ for i in range(200):
     time.sleep(wait_time)
 
 # Пушим все коммиты
-repo.git.push()
+origin = repo.remote(name='origin')
+origin.push()
 print("✅ Все 200 коммитов отправлены!")
