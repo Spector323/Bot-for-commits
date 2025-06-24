@@ -19,19 +19,37 @@ messages = [
 # Открываем репозиторий
 repo = git.Repo(repo_path)
 
-# Делаем 200 коммитов
+# Получаем удалённый репозиторий и текущую ветку
+origin = repo.remote(name='origin')
+current_branch = repo.active_branch
+
+print(f"🔧 Работаем в ветке: {current_branch}")
+
+# Делаем 200 коммитов с пуши после каждого
 for i in range(200):
+    # Обновляем файл
     with open(file_path, 'a', encoding='utf-8') as f:
         f.write(f'Commit #{i+1} at {datetime.now()}\n')
-    
+
+    # Добавляем изменения
     repo.index.add(['commits.log'])
-    repo.index.commit(f"🤖 {random.choice(messages)} — {i+1}")
-    
+
+    # Делаем коммит
+    commit_msg = f"🤖 {random.choice(messages)} — {i+1}"
+    repo.index.commit(commit_msg)
+    print(f"[{i+1}/200] Коммит создан: {commit_msg}")
+
+    # Отправляем на GitHub
+    try:
+        origin.push(refspec=f"{current_branch}:{current_branch}")
+        print(f"[{i+1}/200] Коммит отправлен на GitHub ✅")
+    except Exception as e:
+        print(f"❌ Ошибка при пуше {i+1}: {e}")
+        break
+
+    # Пауза между коммитами (50–70 секунд)
     wait_time = random.randint(50, 70)
-    print(f"[{i+1}/200] Commit done. Waiting {wait_time} sec...")
+    print(f"[{i+1}/200] Жду {wait_time} секунд перед следующим коммитом...")
     time.sleep(wait_time)
 
-# Пушим все коммиты
-origin = repo.remote(name='origin')
-origin.push()
-print("✅ Все 200 коммитов отправлены!")
+print("🎉 Все коммиты успешно обработаны!")
